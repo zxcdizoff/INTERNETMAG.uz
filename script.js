@@ -1,3 +1,4 @@
+
 // ===== DATA =====
 const countries = [
     { name: 'Узбекистан', code: '+998', flag: '🇺🇿', price: 40000 },
@@ -81,28 +82,37 @@ const recentPurchases = [
 // ===== CART =====
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-let TON_TO_UZS = 95000; // fallback, будет обновлён автоматически
+let TON_TO_UZS = 21147; // резервный курс (Telegram TON, не биржевой)
 const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 
-// ===== АВТООБНОВЛЕНИЕ КУРСА TON =====
+// ===== АВТООБНОВЛЕНИЕ КУРСА TELEGRAM TON =====
+// Telegram внутренний курс примерно в 3.67 раз ниже биржевого TON.
+// Коэффициент рассчитан из реального курса: 21147 UZS/TON на 09.06.2026.
+const TELEGRAM_TON_COEFFICIENT = 3.67;
+
 async function fetchTonRate() {
     try {
-        // CoinGecko: цена TON напрямую в UZS
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=uzs');
-        const data = await res.json();
-        const tonUzs = data?.['the-open-network']?.uzs;
+        const [tonRes, uzsRes] = await Promise.all([
+            fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd'),
+            fetch('https://cbu.uz/oz/arkhiv-kursov-valyut/json/')
+        ]);
+        const tonData = await tonRes.json();
+        const uzsData = await uzsRes.json();
 
-        if (tonUzs) {
-            TON_TO_UZS = Math.round(tonUzs);
-            console.log(`[TON Rate] 1 TON = ${TON_TO_UZS} UZS`);
-            updateCartUI(); // пересчитать корзину с новым курсом
+        const tonUsd = tonData?.['the-open-network']?.usd;
+        const usdEntry = uzsData.find(c => c.Ccy === 'USD');
+        const usdUzs = usdEntry ? parseFloat(usdEntry.Rate) : null;
+
+        if (tonUsd && usdUzs) {
+            TON_TO_UZS = Math.round((tonUsd / TELEGRAM_TON_COEFFICIENT) * usdUzs);
+            console.log(`[Telegram TON] Рынок: $${tonUsd} | ЦБ USD: ${usdUzs} | Telegram TON: ${TON_TO_UZS} UZS`);
+            updateCartUI();
         }
     } catch (e) {
-        console.warn('[TON Rate] Не удалось получить курс, используется резервный:', TON_TO_UZS, e);
+        console.warn('[TON Rate] Ошибка, резервный курс:', TON_TO_UZS, e);
     }
 }
 
-// Получаем курс сразу и затем каждые 5 минут
 fetchTonRate();
 setInterval(fetchTonRate, 5 * 60 * 1000);
 
