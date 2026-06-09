@@ -87,21 +87,14 @@ const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 // ===== АВТООБНОВЛЕНИЕ КУРСА TON =====
 async function fetchTonRate() {
     try {
-        // CoinGecko: цена TON в USD + курс USD/UZS (ЦБ Узбекистана)
-        const [tonRes, uzsRes] = await Promise.all([
-            fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd'),
-            fetch('https://cbu.uz/oz/arkhiv-kursov-valyut/json/')
-        ]);
-        const tonData = await tonRes.json();
-        const uzsData = await uzsRes.json();
+        // CoinGecko: цена TON напрямую в UZS
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=uzs');
+        const data = await res.json();
+        const tonUzs = data?.['the-open-network']?.uzs;
 
-        const tonUsd = tonData?.['the-open-network']?.usd;
-        const usdEntry = uzsData.find(c => c.Ccy === 'USD');
-        const usdUzs = usdEntry ? parseFloat(usdEntry.Rate) : null;
-
-        if (tonUsd && usdUzs) {
-            TON_TO_UZS = Math.round((tonUsd / 3.67) * usdUzs);
-            console.log(`[TON Rate] 1 TON = ${tonUsd} USD = ${TON_TO_UZS} UZS`);
+        if (tonUzs) {
+            TON_TO_UZS = Math.round(tonUzs);
+            console.log(`[TON Rate] 1 TON = ${TON_TO_UZS} UZS`);
             updateCartUI(); // пересчитать корзину с новым курсом
         }
     } catch (e) {
