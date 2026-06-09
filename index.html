@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTERNET_MAG.UZ — Виртуальные номера, Telegram Stars и Premium</title>
+    <meta name="description"
+        content="Купить виртуальные номера, Telegram Stars и Telegram Premium по выгодным ценам. Мгновенная выдача, автоматическая доставка, поддержка 24/7.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oswald:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <a href="#" class="logo">INTERNET_<span>MAG.UZ</span></a>
+            <nav class="nav">
+                <a href="#numbers" class="nav-link active">НОМЕРА</a>
+                <a href="#stars" class="nav-link">ЗВЁЗДЫ</a>
+                <a href="#premium" class="nav-link">PREMIUM</a>
+            </nav>
+            <div class="header-right">
+                <button class="cart-btn" id="cartBtn" onclick="toggleCart()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 01-8 0" />
+                    </svg>
+                    Корзина
+                    <span class="cart-count" id="cartCount">0</span>
+                </button>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="#numbers" class="mobile-nav-link" onclick="closeMobileMenu()">НОМЕРА</a>
+            <a href="#stars" class="mobile-nav-link" onclick="closeMobileMenu()">ЗВЁЗДЫ</a>
+            <a href="#premium" class="mobile-nav-link" onclick="closeMobileMenu()">PREMIUM</a>
+        </nav>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-text">INTERNET_MAG.UZ</div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title scroll-animate" data-animation="fadeInUp">
+                    ВИРТУАЛЬНЫЕ НОМЕРА,<br>
+                    TELEGRAM STARS И<br>
+                    TELEGRAM PREMIUM
+                </h1>
+                <p class="hero-subtitle scroll-animate" data-animation="fadeInUp" data-delay="200">ПО ВЫГОДНЫМ ЦЕНАМ</p>
+                <p class="hero-desc scroll-animate" data-animation="fadeInUp" data-delay="400">БЫСТРАЯ ВЫДАЧА •
+                    АВТОМАТИЧЕСКАЯ ДОСТАВКА • ПОДДЕРЖКА 24/7</p>
+                <div class="hero-buttons scroll-animate" data-animation="fadeInUp" data-delay="600">
+                    <a href="#numbers" class="hero-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+                        </svg>
+                        КУПИТЬ НОМЕР
+                    </a>
+                    <a href="#stars" class="hero-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        КУПИТЬ ЗВЁЗДЫ
+                    </a>
+                    <a href="#premium" class="hero-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                        </svg>
+                        КУПИТЬ PREMIUM
+                    </a>
+                </div>
+                <!-- Telegram Contact Buttons -->
+                <div class="telegram-contacts scroll-animate" data-animation="fadeInUp" data-delay="700">
+                    <a href="https://t.me/Internet_maguz_ADMIN" target="_blank" class="telegram-btn admin-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                        </svg>
+                        Написать админу
+                    </a>
+                    <a href="https://t.me/unbrokennx" target="_blank" class="telegram-btn owner-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                        </svg>
+                        Написать владельцу
+                    </a>
+                </div>
+                <div class="hero-stats scroll-animate" data-animation="fadeInUp" data-delay="800">
+                    <div class="stat-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <div>
+                            <strong>24/7</strong>
+                            <span>ПОДДЕРЖКА</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                        <div>
+                            <strong>МГНОВЕННАЯ</strong>
+                            <span>ВЫДАЧА</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                        </svg>
+                        <div>
+                            <strong>НИЗКИЕ</strong>
+                            <span>ЦЕНЫ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Virtual Numbers Section -->
+    <section class="section" id="numbers">
+        <div class="container">
+            <div class="section-header scroll-animate" data-animation="fadeInUp">
+                <div class="section-title-row">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+                        </svg>
+                        ВИРТУАЛЬНЫЕ НОМЕРА
+                    </h2>
+                    <span class="price-badge">40 000 СУМ ЗА НОМЕР</span>
+                </div>
+                <a href="#" class="see-all" id="seeAllNumbers" onclick="toggleAllNumbers(event)">Смотреть все номера
+                    →</a>
+            </div>
+            <div class="numbers-grid scroll-animate" data-animation="fadeInUp" data-delay="200" id="numbersGrid">
+                <!-- Cards will be inserted by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Telegram Stars Section -->
+    <section class="section section-stars" id="stars">
+        <div class="container">
+            <div class="section-header scroll-animate" data-animation="fadeInUp">
+                <h2 class="section-title">
+                    <span class="star-icon">⭐</span> TELEGRAM STARS
+                </h2>
+            </div>
+            <div class="stars-grid scroll-animate" data-animation="fadeInUp" data-delay="200" id="starsGrid">
+                <!-- Cards will be inserted by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Telegram Premium Section -->
+    <section class="section section-premium" id="premium">
+        <div class="container">
+            <div class="section-header scroll-animate" data-animation="fadeInUp">
+                <h2 class="section-title">
+                    <span class="diamond-icon">💎</span> TELEGRAM PREMIUM
+                </h2>
+            </div>
+            <div class="premium-grid scroll-animate" data-animation="fadeInUp" data-delay="200" id="premiumGrid">
+                <!-- Cards will be inserted by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Advantages Section -->
+    <section class="section section-advantages" id="advantages">
+        <div class="container">
+            <div class="advantages-grid">
+                <div class="advantage-card scroll-animate" data-animation="fadeInUp" data-delay="0">
+                    <div class="advantage-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                        </svg>
+                    </div>
+                    <h3>МГНОВЕННАЯ ВЫДАЧА</h3>
+                    <p>Автоматическая доставка сразу после оплаты</p>
+                </div>
+                <div class="advantage-card scroll-animate" data-animation="fadeInUp" data-delay="150">
+                    <div class="advantage-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                        </svg>
+                    </div>
+                    <h3>НИЗКИЕ ЦЕНЫ</h3>
+                    <p>Лучшие цены на рынке гарантированы</p>
+                </div>
+                <div class="advantage-card scroll-animate" data-animation="fadeInUp" data-delay="300">
+                    <div class="advantage-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                    </div>
+                    <h3>ГАРАНТИЯ</h3>
+                    <p>Качество и возврат без проблем</p>
+                </div>
+                <div class="advantage-card scroll-animate" data-animation="fadeInUp" data-delay="450">
+                    <div class="advantage-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                        </svg>
+                    </div>
+                    <h3>ПОДДЕРЖКА 24/7</h3>
+                    <p>Мы всегда на связи в любое время</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section section-faq" id="faq">
+        <div class="container">
+            <h2 class="section-title scroll-animate" data-animation="fadeInUp">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ
+            </h2>
+            <div class="faq-list" id="faqList">
+                <div class="faq-item scroll-animate" data-animation="fadeInUp" data-delay="0">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Как происходит выдача номера?</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>После оплаты номер выдаётся автоматически в течение нескольких секунд. Вы получите SMS-код
+                            для активации на указанный сервис.</p>
+                    </div>
+                </div>
+                <div class="faq-item scroll-animate" data-animation="fadeInUp" data-delay="100">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Какие способы оплаты доступны?</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Мы принимаем оплату через UzCard, Humo, Visa, MasterCard, а также через мобильные платёжные
+                            системы.</p>
+                    </div>
+                </div>
+                <div class="faq-item scroll-animate" data-animation="fadeInUp" data-delay="200">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Что такое Telegram Stars?</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Telegram Stars — это внутренняя валюта Telegram, которая используется для покупки цифрового
+                            контента, подписок и поддержки авторов внутри мессенджера.</p>
+                    </div>
+                </div>
+                <div class="faq-item scroll-animate" data-animation="fadeInUp" data-delay="300">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Можно ли получить возврат?</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Да, если услуга не была оказана, мы гарантируем полный возврат средств. Обратитесь в нашу
+                            поддержку 24/7.</p>
+                    </div>
+                </div>
+                <div class="faq-item scroll-animate" data-animation="fadeInUp" data-delay="400">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>Как активировать Telegram Premium?</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="6 9 12 15 18 9" />
+                        </svg>
+                    </div>
+                    <div class="faq-answer">
+                        <p>После оплаты Premium активируется автоматически на вашем аккаунте. Вам нужно будет указать
+                            ваш username или номер телефона Telegram.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <div class="footer-tg-links">
+                        <a href="https://t.me/Internet_maguz_ADMIN" target="_blank" class="footer-tg-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                            </svg>
+                            Админ
+                        </a>
+                        <a href="https://t.me/unbrokennx" target="_blank" class="footer-tg-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                            </svg>
+                            Владелец
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-center">
+                    <p class="footer-copy">&copy; 2024 INTERNET_MAG.UZ – Все права защищены</p>
+                </div>
+                <div class="footer-right">
+                    <div class="payment-methods">
+                        <div class="payment-card">UzCard</div>
+                        <div class="payment-card humo">Humo</div>
+                        <div class="payment-card visa">VISA</div>
+                        <div class="payment-card mc">MC</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-watermark">INTERNET_MAG.UZ</div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>Корзина</h3>
+            <button class="cart-close" onclick="toggleCart()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="cart-empty" id="cartEmpty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 01-8 0" />
+                </svg>
+                <p>Корзина пуста</p>
+            </div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div class="cart-total-container">
+                <div class="cart-total">
+                    <span>Итого:</span>
+                    <strong id="cartTotal">0 сум</strong>
+                </div>
+                <div class="cart-total-ton" id="cartTotalTon">
+                    ~0 TON
+                </div>
+            </div>
+
+            <div class="cart-section-title">Оплата в Telegram:</div>
+            <div class="cart-checkout-buttons">
+                <a href="https://t.me/Internet_maguz_ADMIN" target="_blank" class="cart-checkout-btn admin-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                    </svg>
+                    Админу
+                </a>
+                <a href="https://t.me/unbrokennx" target="_blank" class="cart-checkout-btn owner-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                    </svg>
+                    Владельцу
+                </a>
+            </div>
+
+            <div class="cart-section-title">Оплата TON (Crypto):</div>
+            <div class="ton-payment-box">
+                <div class="ton-address-container">
+                    <input type="text" id="tonAddress" value="UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3"
+                        readonly>
+                    <button class="ton-copy-btn" id="tonCopyBtn" onclick="copyTonAddress()" title="Копировать адрес">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                        </svg>
+                        Копировать
+                    </button>
+                </div>
+                <div class="ton-instruction">
+                    ⚠️ При отправке TON укажите в <strong>комментарии к транзакции</strong> ваш username Telegram и
+                    товары, которые вы покупаете.
+                </div>
+                <a href="#" id="tonWalletPayBtn" target="_blank" class="cart-ton-pay-btn">
+                    💎 Оплатить через TON Wallet (в разработке)
+                </a>
+            </div>
+
+            <button class="cart-clear-btn" onclick="clearCart()">Очистить корзину</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-notification" id="toastNotification">
+        <div class="toast-content">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            <div class="toast-text">
+                <strong id="toastTitle"></strong>
+                <span id="toastDesc"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
