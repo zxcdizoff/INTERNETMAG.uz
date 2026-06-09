@@ -81,21 +81,37 @@ const recentPurchases = [
 // ===== CART =====
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-let TON_TO_UZS = 205000; // fallback, обновляется с API
+let TON_TO_UZS = 95000; // fallback, будет обновлён автоматически
 const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 
+// ===== АВТООБНОВЛЕНИЕ КУРСА TON =====
 async function fetchTonRate() {
     try {
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=uzs');
-        const data = await res.json();
-        if (data['the-open-network'] && data['the-open-network'].uzs) {
-            TON_TO_UZS = data['the-open-network'].uzs;
-            updateCartUI();
+        // CoinGecko: цена TON в USD + курс USD/UZS (ЦБ Узбекистана)
+        const [tonRes, uzsRes] = await Promise.all([
+            fetch('https://api.coingecko.com/api/v3/simple/price?ids=the-open-network&vs_currencies=usd'),
+            fetch('https://cbu.uz/oz/arkhiv-kursov-valyut/json/')
+        ]);
+        const tonData = await tonRes.json();
+        const uzsData = await uzsRes.json();
+
+        const tonUsd = tonData?.['the-open-network']?.usd;
+        const usdEntry = uzsData.find(c => c.Ccy === 'USD');
+        const usdUzs = usdEntry ? parseFloat(usdEntry.Rate) : null;
+
+        if (tonUsd && usdUzs) {
+            TON_TO_UZS = Math.round((tonUsd / 3.67) * usdUzs);
+            console.log(`[TON Rate] 1 TON = ${tonUsd} USD = ${TON_TO_UZS} UZS`);
+            updateCartUI(); // пересчитать корзину с новым курсом
         }
     } catch (e) {
-        // оставляем fallback 205000
+        console.warn('[TON Rate] Не удалось получить курс, используется резервный:', TON_TO_UZS, e);
     }
 }
+
+// Получаем курс сразу и затем каждые 5 минут
+fetchTonRate();
+setInterval(fetchTonRate, 5 * 60 * 1000);
 
 function updateCartUI() {
     const cartCount = document.getElementById('cartCount');
@@ -106,7 +122,7 @@ function updateCartUI() {
     const tonWalletPayBtn = document.getElementById('tonWalletPayBtn');
 
     cartCount.textContent = cart.length;
-    
+
     if (cart.length === 0) {
         cartItems.innerHTML = `
             <div class="cart-empty" id="cartEmpty">
@@ -136,22 +152,16 @@ function updateCartUI() {
         cartTotal.textContent = formatPrice(total) + ' сум';
 
         // Calculate and format TON price
-        if (TON_TO_UZS) {
-            const tonPrice = (total / TON_TO_UZS).toFixed(2);
-            cartTotalTon.textContent = `~${tonPrice} TON`;
-        } else {
-            cartTotalTon.textContent = `загрузка...`;
-        }
+        const tonPrice = (total / TON_TO_UZS).toFixed(2);
+        cartTotalTon.textContent = `~${tonPrice} TON`;
 
         // Update TON Wallet pay button link
         // Comment format: "Покупка: [items]. Telegram: @"
         const itemsList = cart.map(item => item.name).join(', ');
         const commentText = `Покупка: ${itemsList}. Telegram: @`;
-        if (TON_TO_UZS) {
-            const tonPrice = (total / TON_TO_UZS).toFixed(2);
-            const nanotons = Math.round(parseFloat(tonPrice) * 1000000000);
-            tonWalletPayBtn.href = `ton://transfer/${TON_ADDRESS}?amount=${nanotons}&text=${encodeURIComponent(commentText)}`;
-        }
+        const nanotons = Math.round(parseFloat(tonPrice) * 1000000000);
+
+        tonWalletPayBtn.href = `ton://transfer/${TON_ADDRESS}?amount=${nanotons}&text=${encodeURIComponent(commentText)}`;
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -178,7 +188,7 @@ function addToCart(item) {
     cart.push(item);
     updateCartUI();
     showToast('Добавлено в корзину', item.name);
-    
+
     // Pulse animation on cart button
     const cartBtn = document.getElementById('cartBtn');
     cartBtn.style.animation = 'none';
@@ -242,7 +252,7 @@ function addNumberToCart(index, btn) {
         name: `Номер ${country.name} (${country.code})`,
         price: country.price
     });
-    
+
     btn.classList.add('added');
     btn.textContent = '✓ ДОБАВЛЕНО';
     setTimeout(() => {
@@ -339,7 +349,7 @@ function toggleAllNumbers(e) {
     const grid = document.getElementById('numbersGrid');
     const link = document.getElementById('seeAllNumbers');
     showingAll = !showingAll;
-    
+
     if (showingAll) {
         grid.classList.add('show-all');
         link.textContent = 'Скрыть ←';
@@ -352,7 +362,7 @@ function toggleAllNumbers(e) {
 // ===== SCROLL ANIMATIONS =====
 function initScrollAnimations() {
     const elements = document.querySelectorAll('.scroll-animate');
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -375,7 +385,7 @@ function initScrollAnimations() {
 function initHeaderScroll() {
     const header = document.getElementById('header');
     let lastScroll = 0;
-    
+
     window.addEventListener('scroll', () => {
         const currentScroll = window.scrollY;
         if (currentScroll > 50) {
@@ -391,7 +401,7 @@ function initHeaderScroll() {
 function initActiveNav() {
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-link');
-    
+
     window.addEventListener('scroll', () => {
         let current = '';
         sections.forEach(section => {
@@ -400,7 +410,7 @@ function initActiveNav() {
                 current = section.getAttribute('id');
             }
         });
-        
+
         navLinks.forEach(link => {
             link.classList.remove('active');
             if (link.getAttribute('href') === '#' + current) {
@@ -429,10 +439,10 @@ function closeMobileMenu() {
 function toggleFaq(el) {
     const item = el.parentElement;
     const isActive = item.classList.contains('active');
-    
+
     // Close all
     document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-    
+
     if (!isActive) {
         item.classList.add('active');
     }
@@ -444,7 +454,7 @@ function toggleChat() {
     const window_ = document.getElementById('chatWindow');
     chatOpen = !chatOpen;
     window_.classList.toggle('active', chatOpen);
-    
+
     if (chatOpen) {
         document.querySelector('.chat-badge').style.display = 'none';
     }
@@ -454,9 +464,9 @@ function sendChat() {
     const input = document.getElementById('chatInput');
     const messages = document.getElementById('chatMessages');
     const text = input.value.trim();
-    
+
     if (!text) return;
-    
+
     // User message
     const userMsg = document.createElement('div');
     userMsg.className = 'chat-msg user';
@@ -464,7 +474,7 @@ function sendChat() {
     messages.appendChild(userMsg);
     input.value = '';
     messages.scrollTop = messages.scrollHeight;
-    
+
     // Bot reply
     setTimeout(() => {
         const botMsg = document.createElement('div');
@@ -492,7 +502,7 @@ function showToast(title, desc) {
     const toast = document.getElementById('toastNotification');
     document.getElementById('toastTitle').textContent = title;
     document.getElementById('toastDesc').textContent = desc;
-    
+
     toast.classList.add('active');
     clearTimeout(toastTimeout);
     toastTimeout = setTimeout(() => {
@@ -513,7 +523,7 @@ function initAutoNotifications() {
 // ===== PARALLAX / TILT EFFECT =====
 function initParallaxTilt() {
     const isMobile = 'ontouchstart' in window;
-    
+
     if (isMobile) {
         // Mobile: use device orientation for parallax
         initMobileParallax();
@@ -525,7 +535,7 @@ function initParallaxTilt() {
 
 function initDesktopTilt() {
     const cards = document.querySelectorAll('[data-tilt]');
-    
+
     cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
@@ -533,13 +543,13 @@ function initDesktopTilt() {
             const y = e.clientY - rect.top;
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
-            
+
             const rotateX = (y - centerY) / centerY * -5;
             const rotateY = (x - centerX) / centerX * 5;
-            
+
             card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
         });
-        
+
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateY(0)';
         });
@@ -552,21 +562,21 @@ function initMobileParallax() {
         window.addEventListener('deviceorientation', (e) => {
             const beta = e.beta || 0; // -180 to 180 (front/back tilt)
             const gamma = e.gamma || 0; // -90 to 90 (left/right tilt)
-            
+
             const david = document.getElementById('davidImg');
             if (david) {
                 const moveX = gamma * 0.3;
                 const moveY = (beta - 45) * 0.2;
                 david.style.transform = `translate(${moveX}px, ${moveY}px)`;
             }
-            
+
             const bgText = document.querySelector('.hero-bg-text');
             if (bgText) {
                 bgText.style.transform = `translate(calc(-50% + ${gamma * 0.1}px), calc(-50% + ${(beta - 45) * 0.1}px))`;
             }
         }, { passive: true });
     }
-    
+
     // Scroll-based parallax for cards
     let ticking = false;
     window.addEventListener('scroll', () => {
@@ -574,18 +584,18 @@ function initMobileParallax() {
             requestAnimationFrame(() => {
                 const scrollY = window.scrollY;
                 const cards = document.querySelectorAll('[data-tilt]');
-                
+
                 cards.forEach(card => {
                     const rect = card.getBoundingClientRect();
                     const windowHeight = window.innerHeight;
-                    
+
                     if (rect.top < windowHeight && rect.bottom > 0) {
                         const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
                         const translateY = (progress - 0.5) * 10;
                         card.style.transform = `translateY(${translateY}px)`;
                     }
                 });
-                
+
                 ticking = false;
             });
             ticking = true;
@@ -597,16 +607,16 @@ function initMobileParallax() {
 function initDesktopScrollParallax() {
     const isMobile = window.innerWidth < 768;
     if (isMobile) return;
-    
+
     window.addEventListener('scroll', () => {
         requestAnimationFrame(() => {
             const scrollY = window.scrollY;
-            
+
             const david = document.getElementById('davidImg');
             if (david && scrollY < window.innerHeight) {
                 david.style.transform = `translateY(${scrollY * 0.15}px)`;
             }
-            
+
             const bgText = document.querySelector('.hero-bg-text');
             if (bgText && scrollY < window.innerHeight) {
                 bgText.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.1}px))`;
@@ -619,7 +629,7 @@ function initDesktopScrollParallax() {
 // ===== SMOOTH REVEAL ON SCROLL FOR CARDS =====
 function initCardRevealOnScroll() {
     const allCards = document.querySelectorAll('.number-card, .star-card, .premium-card, .advantage-card');
-    
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, i) => {
             if (entry.isIntersecting) {
@@ -632,7 +642,7 @@ function initCardRevealOnScroll() {
             }
         });
     }, { threshold: 0.05 });
-    
+
     allCards.forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
@@ -675,7 +685,7 @@ function initHeroLightning() {
         if (depth === 0) return [[x1, y1], [x2, y2]];
         const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * roughness;
         const my = (y1 + y2) / 2 + (Math.random() - 0.5) * roughness;
-        const left  = generateBolt(x1, y1, mx, my, roughness * 0.6, depth - 1);
+        const left = generateBolt(x1, y1, mx, my, roughness * 0.6, depth - 1);
         const right = generateBolt(mx, my, x2, y2, roughness * 0.6, depth - 1);
         return [...left, ...right];
     }
@@ -808,14 +818,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderStars();
     renderPremium();
     updateCartUI();
-    
+
     initScrollAnimations();
     initHeaderScroll();
     initActiveNav();
     initHeroLightning();
-    fetchTonRate();
-    setInterval(fetchTonRate, 5 * 60 * 1000); // обновлять курс каждые 5 минут
-    
+
     // Delay tilt/parallax slightly for performance
     setTimeout(() => {
         initParallaxTilt();
