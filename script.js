@@ -1,4 +1,3 @@
-
 // ===== DATA =====
 const countries = [
     { name: 'Узбекистан', code: '+998', flag: '🇺🇿', price: 40000 },
@@ -82,14 +81,10 @@ const recentPurchases = [
 // ===== CART =====
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-let TON_TO_UZS = 21147; // резервный курс (Telegram TON, не биржевой)
+let TON_TO_UZS = 75000; // Резервный реальный курс (около 75к-85к сум за 1 TON)
 const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 
-// ===== АВТООБНОВЛЕНИЕ КУРСА TELEGRAM TON =====
-// Telegram внутренний курс примерно в 3.67 раз ниже биржевого TON.
-// Коэффициент рассчитан из реального курса: 21147 UZS/TON на 09.06.2026.
-const TELEGRAM_TON_COEFFICIENT = 3.67;
-
+// ===== АВТООБНОВЛЕНИЕ РЕАЛЬНОГО КУРСА TON =====
 async function fetchTonRate() {
     try {
         const [tonRes, uzsRes] = await Promise.all([
@@ -104,8 +99,9 @@ async function fetchTonRate() {
         const usdUzs = usdEntry ? parseFloat(usdEntry.Rate) : null;
 
         if (tonUsd && usdUzs) {
-            TON_TO_UZS = Math.round((tonUsd / TELEGRAM_TON_COEFFICIENT) * usdUzs);
-            console.log(`[Telegram TON] Рынок: $${tonUsd} | ЦБ USD: ${usdUzs} | Telegram TON: ${TON_TO_UZS} UZS`);
+            // Рассчитываем чистый биржевой курс TON в сумах
+            TON_TO_UZS = Math.round(tonUsd * usdUzs);
+            console.log(`[Реальный TON] Рынок: $${tonUsd} | ЦБ USD: ${usdUzs} | 1 TON = ${TON_TO_UZS} UZS`);
             updateCartUI();
         }
     } catch (e) {
@@ -151,15 +147,19 @@ function updateCartUI() {
         cartItems.innerHTML = html;
         cartFooter.style.display = 'block';
 
+        // Чистая сумма товаров без наценки для показа в сумах
         const total = cart.reduce((sum, item) => sum + item.price, 0);
         cartTotal.textContent = formatPrice(total) + ' сум';
 
-        // Calculate and format TON price
-        const tonPrice = (total / TON_TO_UZS).toFixed(2);
+        // Расчет цены в TON со скрытой надбавкой 2000 сум за каждый товар
+        const markupPerItem = 2000; 
+        const totalWithMarkup = total + (cart.length * markupPerItem);
+
+        // Переводим в TON по реальному биржевому курсу и мягко округляем вверх
+        const tonPrice = (Math.ceil((totalWithMarkup / TON_TO_UZS) * 100) / 100).toFixed(2);
         cartTotalTon.textContent = `~${tonPrice} TON`;
 
-        // Update TON Wallet pay button link
-        // Comment format: "Покупка: [items]. Telegram: @"
+        // Ссылка для кошельков (Tonkeeper / Wallet)
         const itemsList = cart.map(item => item.name).join(', ');
         const commentText = `Покупка: ${itemsList}. Telegram: @`;
         const nanotons = Math.round(parseFloat(tonPrice) * 1000000000);
@@ -528,10 +528,8 @@ function initParallaxTilt() {
     const isMobile = 'ontouchstart' in window;
 
     if (isMobile) {
-        // Mobile: use device orientation for parallax
         initMobileParallax();
     } else {
-        // Desktop: mouse-based tilt on cards
         initDesktopTilt();
     }
 }
@@ -560,11 +558,10 @@ function initDesktopTilt() {
 }
 
 function initMobileParallax() {
-    // Gyroscope parallax for mobile
     if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', (e) => {
-            const beta = e.beta || 0; // -180 to 180 (front/back tilt)
-            const gamma = e.gamma || 0; // -90 to 90 (left/right tilt)
+            const beta = e.beta || 0;
+            const gamma = e.gamma || 0;
 
             const david = document.getElementById('davidImg');
             if (david) {
@@ -580,7 +577,6 @@ function initMobileParallax() {
         }, { passive: true });
     }
 
-    // Scroll-based parallax for cards
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
@@ -606,7 +602,7 @@ function initMobileParallax() {
     }, { passive: true });
 }
 
-// ===== DESKTOP SCROLL PARALLAX (hero elements) =====
+// ===== DESKTOP SCROLL PARALLAX =====
 function initDesktopScrollParallax() {
     const isMobile = window.innerWidth < 768;
     if (isMobile) return;
@@ -707,7 +703,7 @@ function initHeroLightning() {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.stroke();
-        // white spine
+
         ctx.beginPath();
         ctx.moveTo(points[0][0], points[0][1]);
         for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
@@ -769,14 +765,12 @@ function initHeroLightning() {
         });
     }
 
-    // IntersectionObserver — молнии работают только когда hero видно
     let heroVisible = true;
     const observer = new IntersectionObserver(entries => {
         heroVisible = entries[0].isIntersecting;
     }, { threshold: 0.01 });
     observer.observe(hero);
 
-    // Непрерывный spawn каждые 0.5–1.2 сек
     function scheduleNextBolt() {
         setTimeout(() => {
             if (heroVisible) spawnBolt();
@@ -827,7 +821,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initActiveNav();
     initHeroLightning();
 
-    // Delay tilt/parallax slightly for performance
     setTimeout(() => {
         initParallaxTilt();
         initDesktopScrollParallax();
