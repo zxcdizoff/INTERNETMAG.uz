@@ -39,7 +39,7 @@ const countries = [
     { name: 'Египет', code: '+20', flag: '🇪🇬', price: 40000, hidden: true },
     { name: 'Нигерия', code: '+234', flag: '🇳🇬', price: 40000, hidden: true },
     { name: 'Саудовская Аравия', code: '+966', flag: '🇸🇦', price: 40000, hidden: true },
-    { name: 'Израиль', code: '+972', flag: '🇮🇱', price: 40000, hidden: true },
+    { name: 'Израиль', code: '+972', fill: 'none', flag: '🇮🇱', price: 40000, hidden: true },
     { name: 'Швейцария', code: '+41', flag: '🇨🇭', price: 40000, hidden: true },
     { name: 'Австрия', code: '+43', flag: '🇦🇹', price: 40000, hidden: true },
     { name: 'Чехия', code: '+420', flag: '🇨🇿', price: 40000, hidden: true },
@@ -81,7 +81,8 @@ const recentPurchases = [
 // ===== CART =====
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-let TON_TO_UZS = 75000; // Резервный курс TON
+// Реалистичный резервный курс (1 TON ≈ 62 000 UZS), чтобы не было занижения цены
+let TON_TO_UZS = 62000; 
 const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 
 // ===== АВТООБНОВЛЕНИЕ КУРСА TON =====
@@ -99,12 +100,16 @@ async function fetchTonRate() {
         const usdUzs = usdEntry ? parseFloat(usdEntry.Rate) : null;
 
         if (tonUsd && usdUzs) {
-            TON_TO_UZS = Math.round(tonUsd * usdUzs);
-            console.log(`[Реальный TON] Курс обновлен: 1 TON = ${TON_TO_UZS} UZS`);
-            updateCartUI();
+            const calculatedRate = Math.round(tonUsd * usdUzs);
+            // Защита: курс не должен быть неадекватно завышенным
+            if (calculatedRate > 30000 && calculatedRate < 120000) {
+                TON_TO_UZS = calculatedRate;
+                console.log(`[Реальный TON] С биржи: 1 TON = ${TON_TO_UZS} UZS`);
+                updateCartUI();
+            }
         }
     } catch (e) {
-        console.warn('[TON Rate] Ошибка, резервный курс:', TON_TO_UZS, e);
+        console.warn('[TON Rate] Ошибка сети, остался рабочий курс:', TON_TO_UZS);
     }
 }
 
@@ -149,29 +154,36 @@ function updateCartUI() {
         const total = cart.reduce((sum, item) => sum + item.price, 0);
         cartTotal.textContent = formatPrice(total) + ' сум';
 
-        // Расчет цены в TON со скрытой надбавкой 2000 сум за каждый товар
+        // Твоя наценка: +2000 сум за каждый товар в чеке
         const markupPerItem = 2000; 
         const totalWithMarkup = total + (cart.length * markupPerItem);
 
-        // Переводим в TON и округляем вверх
+        // Переводим в ТОН и мягко округляем вверх
         const tonPrice = (Math.ceil((totalWithMarkup / TON_TO_UZS) * 100) / 100).toFixed(2);
         cartTotalTon.textContent = `~${tonPrice} TON`;
 
-        // Ссылка для кошельков с понятным указанием для ввода юзернейма
+        // Ссылка для кошельков с заменяемым плейсхолдером @username
         const itemsList = cart.map(item => item.name).join(', ');
         const commentText = `Покупка: ${itemsList}. Telegram: @username`;
         const nanotons = Math.round(parseFloat(tonPrice) * 1000000000);
 
         tonWalletPayBtn.href = `ton://transfer/${TON_ADDRESS}?amount=${nanotons}&text=${encodeURIComponent(commentText)}`;
 
-        // Убираем текст "В разработке" у крипто-кнопки, если она заблокирована в HTML
+        // Убираем рудименты текста "В разработке"
         if (tonWalletPayBtn) {
             tonWalletPayBtn.classList.remove('disabled');
-            // Если текст внутри кнопки содержал "в разработке", меняем его на чистый
-            if (tonWalletPayBtn.textContent.includes('разработ')) {
-                tonWalletPayBtn.innerHTML = `Оплатить через TON (~${tonPrice} TON)`;
-            }
+            tonWalletPayBtn.innerHTML = `Оплатить через TON (~${tonPrice} TON)`;
         }
+
+        // Информационная плашка для снижения паники из-за залога сети в 1 TON
+        let infoNotice = document.getElementById('tonInfoNotice');
+        if (!infoNotice) {
+            infoNotice = document.createElement('div');
+            infoNotice.id = 'tonInfoNotice';
+            infoNotice.style.cssText = 'font-size: 11px; color: #aaa; margin-top: 10px; line-height: 1.4; text-align: center; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.1);';
+            tonWalletPayBtn.parentNode.insertBefore(infoNotice, tonWalletPayBtn.nextSibling);
+        }
+        infoNotice.innerHTML = `⚠️ <b>Внимание:</b> При оплате кошелек может показать залог комиссии ≈1 TON. Это стандартное правило сети TON. Реальная комиссия составит всего около 0.01 TON, а остаток вернется вам на баланс сразу после отправки!`;
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -209,12 +221,18 @@ function removeFromCart(index) {
     const item = cart[index];
     cart.splice(index, 1);
     updateCartUI();
+    
+    if (cart.length === 0) {
+        const infoNotice = document.getElementById('tonInfoNotice');
+        if (infoNotice) infoNotice.remove();
+    }
 }
 
-// Убрал лишние дубли функций, оставил только важный код
 function clearCart() {
     cart = [];
     updateCartUI();
+    const infoNotice = document.getElementById('tonInfoNotice');
+    if (infoNotice) infoNotice.remove();
 }
 
 function toggleCart() {
@@ -557,7 +575,6 @@ function initHeroLightning() {
     resize();
     window.addEventListener('resize', resize);
 
-    // Упрощенный триггер для анимации холста молний
     let heroVisible = true;
     const observer = new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; }, { threshold: 0.01 });
     observer.observe(hero);
@@ -569,7 +586,7 @@ function initHeroLightning() {
     animate();
 }
 
-// ===== ИНИЦИАЛИЗАЦИЯ ВСЕХ КОМПОНЕНТОВ =====
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', () => {
     renderNumbers();
     renderStars();
@@ -587,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initCardRevealOnScroll();
     }, 500);
 
-    // Дополнительный авто-фикс кнопки при первой загрузке (на случай, если корзина пустая)
+    // Первичный фикс кнопки при пустой корзине
     const cryptoBtn = document.getElementById('tonWalletPayBtn');
     if (cryptoBtn) {
         cryptoBtn.classList.remove('disabled');
