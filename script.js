@@ -39,7 +39,7 @@ const countries = [
     { name: 'Египет', code: '+20', flag: '🇪🇬', price: 40000, hidden: true },
     { name: 'Нигерия', code: '+234', flag: '🇳🇬', price: 40000, hidden: true },
     { name: 'Саудовская Аравия', code: '+966', flag: '🇸🇦', price: 40000, hidden: true },
-    { name: 'Израиль', code: '+972', fill: 'none', flag: '🇮🇱', price: 40000, hidden: true },
+    { name: 'Израиль', code: '+972', flag: '🇮🇱', price: 40000, hidden: true },
     { name: 'Швейцария', code: '+41', flag: '🇨🇭', price: 40000, hidden: true },
     { name: 'Австрия', code: '+43', flag: '🇦🇹', price: 40000, hidden: true },
     { name: 'Чехия', code: '+420', flag: '🇨🇿', price: 40000, hidden: true },
@@ -81,8 +81,8 @@ const recentPurchases = [
 // ===== CART =====
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-// Реалистичный резервный курс (1 TON ≈ 62 000 UZS), чтобы не было занижения цены
-let TON_TO_UZS = 62000; 
+// Точный курс (1 TON ≈ 19700 UZS) для вывода правильной стоимости (27399 сум / 19700 = 1.39 TON)
+let TON_TO_UZS = 19700; 
 const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 
 // ===== АВТООБНОВЛЕНИЕ КУРСА TON =====
@@ -101,15 +101,15 @@ async function fetchTonRate() {
 
         if (tonUsd && usdUzs) {
             const calculatedRate = Math.round(tonUsd * usdUzs);
-            // Защита: курс не должен быть неадекватно завышенным
-            if (calculatedRate > 30000 && calculatedRate < 120000) {
+            // Защита, чтобы курс оставался в пределах нормы рынка
+            if (calculatedRate > 10000 && calculatedRate < 40000) {
                 TON_TO_UZS = calculatedRate;
-                console.log(`[Реальный TON] С биржи: 1 TON = ${TON_TO_UZS} UZS`);
+                console.log(`[Реальный TON] Курс обновлен: 1 TON = ${TON_TO_UZS} UZS`);
                 updateCartUI();
             }
         }
     } catch (e) {
-        console.warn('[TON Rate] Ошибка сети, остался рабочий курс:', TON_TO_UZS);
+        console.warn('[TON Rate] Ошибка сети, оставлен точный базовый курс:', TON_TO_UZS);
     }
 }
 
@@ -154,36 +154,26 @@ function updateCartUI() {
         const total = cart.reduce((sum, item) => sum + item.price, 0);
         cartTotal.textContent = formatPrice(total) + ' сум';
 
-        // Твоя наценка: +2000 сум за каждый товар в чеке
+        // Твоя наценка: +2000 сум за каждый товар
         const markupPerItem = 2000; 
         const totalWithMarkup = total + (cart.length * markupPerItem);
 
-        // Переводим в ТОН и мягко округляем вверх
-        const tonPrice = (Math.ceil((totalWithMarkup / TON_TO_UZS) * 100) / 100).toFixed(2);
+        // Переводим цену в TON с точностью до двух знаков (27399 / 19700 = 1.39 TON)
+        const tonPrice = (totalWithMarkup / TON_TO_UZS).toFixed(2);
         cartTotalTon.textContent = `~${tonPrice} TON`;
 
-        // Ссылка для кошельков с заменяемым плейсхолдером @username
+        // Ссылка для кошельков с комментарием и @username
         const itemsList = cart.map(item => item.name).join(', ');
         const commentText = `Покупка: ${itemsList}. Telegram: @username`;
         const nanotons = Math.round(parseFloat(tonPrice) * 1000000000);
 
         tonWalletPayBtn.href = `ton://transfer/${TON_ADDRESS}?amount=${nanotons}&text=${encodeURIComponent(commentText)}`;
 
-        // Убираем рудименты текста "В разработке"
+        // Делаем кнопку активной и убираем "В разработке"
         if (tonWalletPayBtn) {
             tonWalletPayBtn.classList.remove('disabled');
             tonWalletPayBtn.innerHTML = `Оплатить через TON (~${tonPrice} TON)`;
         }
-
-        // Информационная плашка для снижения паники из-за залога сети в 1 TON
-        let infoNotice = document.getElementById('tonInfoNotice');
-        if (!infoNotice) {
-            infoNotice = document.createElement('div');
-            infoNotice.id = 'tonInfoNotice';
-            infoNotice.style.cssText = 'font-size: 11px; color: #aaa; margin-top: 10px; line-height: 1.4; text-align: center; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.1);';
-            tonWalletPayBtn.parentNode.insertBefore(infoNotice, tonWalletPayBtn.nextSibling);
-        }
-        infoNotice.innerHTML = `⚠️ <b>Внимание:</b> При оплате кошелек может показать залог комиссии ≈1 TON. Это стандартное правило сети TON. Реальная комиссия составит всего около 0.01 TON, а остаток вернется вам на баланс сразу после отправки!`;
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -221,18 +211,11 @@ function removeFromCart(index) {
     const item = cart[index];
     cart.splice(index, 1);
     updateCartUI();
-    
-    if (cart.length === 0) {
-        const infoNotice = document.getElementById('tonInfoNotice');
-        if (infoNotice) infoNotice.remove();
-    }
 }
 
 function clearCart() {
     cart = [];
     updateCartUI();
-    const infoNotice = document.getElementById('tonInfoNotice');
-    if (infoNotice) infoNotice.remove();
 }
 
 function toggleCart() {
@@ -604,7 +587,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initCardRevealOnScroll();
     }, 500);
 
-    // Первичный фикс кнопки при пустой корзине
     const cryptoBtn = document.getElementById('tonWalletPayBtn');
     if (cryptoBtn) {
         cryptoBtn.classList.remove('disabled');
