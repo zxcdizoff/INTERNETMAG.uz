@@ -81,10 +81,10 @@ const recentPurchases = [
 // ===== CART =====
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-let TON_TO_UZS = 75000; // Резервный реальный курс (около 75к-85к сум за 1 TON)
+let TON_TO_UZS = 75000; // Резервный курс TON
 const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 
-// ===== АВТООБНОВЛЕНИЕ РЕАЛЬНОГО КУРСА TON =====
+// ===== АВТООБНОВЛЕНИЕ КУРСА TON =====
 async function fetchTonRate() {
     try {
         const [tonRes, uzsRes] = await Promise.all([
@@ -99,9 +99,8 @@ async function fetchTonRate() {
         const usdUzs = usdEntry ? parseFloat(usdEntry.Rate) : null;
 
         if (tonUsd && usdUzs) {
-            // Рассчитываем чистый биржевой курс TON в сумах
             TON_TO_UZS = Math.round(tonUsd * usdUzs);
-            console.log(`[Реальный TON] Рынок: $${tonUsd} | ЦБ USD: ${usdUzs} | 1 TON = ${TON_TO_UZS} UZS`);
+            console.log(`[Реальный TON] Курс обновлен: 1 TON = ${TON_TO_UZS} UZS`);
             updateCartUI();
         }
     } catch (e) {
@@ -147,7 +146,6 @@ function updateCartUI() {
         cartItems.innerHTML = html;
         cartFooter.style.display = 'block';
 
-        // Чистая сумма товаров без наценки для показа в сумах
         const total = cart.reduce((sum, item) => sum + item.price, 0);
         cartTotal.textContent = formatPrice(total) + ' сум';
 
@@ -155,16 +153,25 @@ function updateCartUI() {
         const markupPerItem = 2000; 
         const totalWithMarkup = total + (cart.length * markupPerItem);
 
-        // Переводим в TON по реальному биржевому курсу и мягко округляем вверх
+        // Переводим в TON и округляем вверх
         const tonPrice = (Math.ceil((totalWithMarkup / TON_TO_UZS) * 100) / 100).toFixed(2);
         cartTotalTon.textContent = `~${tonPrice} TON`;
 
-        // Ссылка для кошельков (Tonkeeper / Wallet)
+        // Ссылка для кошельков с понятным указанием для ввода юзернейма
         const itemsList = cart.map(item => item.name).join(', ');
-        const commentText = `Покупка: ${itemsList}. Telegram: @`;
+        const commentText = `Покупка: ${itemsList}. Telegram: @username`;
         const nanotons = Math.round(parseFloat(tonPrice) * 1000000000);
 
         tonWalletPayBtn.href = `ton://transfer/${TON_ADDRESS}?amount=${nanotons}&text=${encodeURIComponent(commentText)}`;
+
+        // Убираем текст "В разработке" у крипто-кнопки, если она заблокирована в HTML
+        if (tonWalletPayBtn) {
+            tonWalletPayBtn.classList.remove('disabled');
+            // Если текст внутри кнопки содержал "в разработке", меняем его на чистый
+            if (tonWalletPayBtn.textContent.includes('разработ')) {
+                tonWalletPayBtn.innerHTML = `Оплатить через TON (~${tonPrice} TON)`;
+            }
+        }
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -192,10 +199,9 @@ function addToCart(item) {
     updateCartUI();
     showToast('Добавлено в корзину', item.name);
 
-    // Pulse animation on cart button
     const cartBtn = document.getElementById('cartBtn');
     cartBtn.style.animation = 'none';
-    cartBtn.offsetHeight; // trigger reflow
+    cartBtn.offsetHeight;
     cartBtn.style.animation = 'cartPulse 0.5s ease';
 }
 
@@ -205,6 +211,7 @@ function removeFromCart(index) {
     updateCartUI();
 }
 
+// Убрал лишние дубли функций, оставил только важный код
 function clearCart() {
     cart = [];
     updateCartUI();
@@ -225,12 +232,10 @@ function checkout() {
     toggleCart();
 }
 
-// ===== FORMAT PRICE =====
 function formatPrice(price) {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 }
 
-// ===== RENDER CARDS =====
 function renderNumbers() {
     const grid = document.getElementById('numbersGrid');
     let html = '';
@@ -345,7 +350,6 @@ function renderRecentPurchases() {
     list.innerHTML = html;
 }
 
-// ===== TOGGLE ALL NUMBERS =====
 let showingAll = false;
 function toggleAllNumbers(e) {
     e.preventDefault();
@@ -362,10 +366,8 @@ function toggleAllNumbers(e) {
     }
 }
 
-// ===== SCROLL ANIMATIONS =====
 function initScrollAnimations() {
     const elements = document.querySelectorAll('.scroll-animate');
-
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -376,101 +378,63 @@ function initScrollAnimations() {
                 observer.unobserve(entry.target);
             }
         });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
     elements.forEach(el => observer.observe(el));
 }
 
-// ===== HEADER SCROLL =====
 function initHeaderScroll() {
     const header = document.getElementById('header');
-    let lastScroll = 0;
-
     window.addEventListener('scroll', () => {
-        const currentScroll = window.scrollY;
-        if (currentScroll > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-        lastScroll = currentScroll;
+        if (window.scrollY > 50) header.classList.add('scrolled');
+        else header.classList.remove('scrolled');
     }, { passive: true });
 }
 
-// ===== ACTIVE NAV LINK =====
 function initActiveNav() {
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.nav-link');
-
     window.addEventListener('scroll', () => {
         let current = '';
         sections.forEach(section => {
-            const sectionTop = section.offsetTop - 100;
-            if (window.scrollY >= sectionTop) {
-                current = section.getAttribute('id');
-            }
+            if (window.scrollY >= section.offsetTop - 100) current = section.getAttribute('id');
         });
-
         navLinks.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('active');
-            }
+            if (link.getAttribute('href') === '#' + current) link.classList.add('active');
         });
     }, { passive: true });
 }
 
-// ===== MOBILE MENU =====
 function toggleMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    const btn = document.getElementById('mobileMenuBtn');
-    menu.classList.toggle('active');
-    btn.classList.toggle('active');
+    document.getElementById('mobileMenu').classList.toggle('active');
+    document.getElementById('mobileMenuBtn').classList.toggle('active');
 }
 
 function closeMobileMenu() {
-    const menu = document.getElementById('mobileMenu');
-    const btn = document.getElementById('mobileMenuBtn');
-    menu.classList.remove('active');
-    btn.classList.remove('active');
+    document.getElementById('mobileMenu').classList.remove('active');
+    document.getElementById('mobileMenuBtn').classList.remove('active');
 }
 
-// ===== FAQ =====
 function toggleFaq(el) {
     const item = el.parentElement;
     const isActive = item.classList.contains('active');
-
-    // Close all
     document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-
-    if (!isActive) {
-        item.classList.add('active');
-    }
+    if (!isActive) item.classList.add('active');
 }
 
-// ===== CHAT =====
 let chatOpen = false;
 function toggleChat() {
-    const window_ = document.getElementById('chatWindow');
     chatOpen = !chatOpen;
-    window_.classList.toggle('active', chatOpen);
-
-    if (chatOpen) {
-        document.querySelector('.chat-badge').style.display = 'none';
-    }
+    document.getElementById('chatWindow').classList.toggle('active', chatOpen);
+    if (chatOpen) document.querySelector('.chat-badge').style.display = 'none';
 }
 
 function sendChat() {
     const input = document.getElementById('chatInput');
     const messages = document.getElementById('chatMessages');
     const text = input.value.trim();
-
     if (!text) return;
 
-    // User message
     const userMsg = document.createElement('div');
     userMsg.className = 'chat-msg user';
     userMsg.innerHTML = `<span>${text}</span>`;
@@ -478,16 +442,13 @@ function sendChat() {
     input.value = '';
     messages.scrollTop = messages.scrollHeight;
 
-    // Bot reply
     setTimeout(() => {
         const botMsg = document.createElement('div');
         botMsg.className = 'chat-msg bot';
         const replies = [
             'Спасибо за ваш вопрос! Наш специалист свяжется с вами в ближайшее время. 😊',
-            'Добрый день! Все товары выдаются автоматически после оплаты. Если нужна помощь — мы здесь!',
-            'Мы работаем 24/7! Напишите подробнее и мы поможем вам.',
-            'Отличный выбор! Оплата принимается через UzCard, Humo, Visa и MasterCard.',
-            'Номера выдаются мгновенно! Выберите нужную страну и нажмите «Купить».'
+            'Добрый день! Все товары выдаются автоматически после оплаты.',
+            'Мы работаем 24/7! Напишите подробнее и мы поможем вам.'
         ];
         botMsg.innerHTML = `<span>${replies[Math.floor(Math.random() * replies.length)]}</span>`;
         messages.appendChild(botMsg);
@@ -499,21 +460,16 @@ function handleChatKey(e) {
     if (e.key === 'Enter') sendChat();
 }
 
-// ===== TOAST NOTIFICATION =====
 let toastTimeout;
 function showToast(title, desc) {
     const toast = document.getElementById('toastNotification');
     document.getElementById('toastTitle').textContent = title;
     document.getElementById('toastDesc').textContent = desc;
-
     toast.classList.add('active');
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => {
-        toast.classList.remove('active');
-    }, 3000);
+    toastTimeout = setTimeout(() => toast.classList.remove('active'), 3000);
 }
 
-// ===== AUTO PURCHASE NOTIFICATIONS =====
 function initAutoNotifications() {
     let index = 0;
     setInterval(() => {
@@ -523,34 +479,21 @@ function initAutoNotifications() {
     }, 15000);
 }
 
-// ===== PARALLAX / TILT EFFECT =====
 function initParallaxTilt() {
-    const isMobile = 'ontouchstart' in window;
-
-    if (isMobile) {
-        initMobileParallax();
-    } else {
-        initDesktopTilt();
-    }
+    if ('ontouchstart' in window) initMobileParallax();
+    else initDesktopTilt();
 }
 
 function initDesktopTilt() {
-    const cards = document.querySelectorAll('[data-tilt]');
-
-    cards.forEach(card => {
+    document.querySelectorAll('[data-tilt]').forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-
-            const rotateX = (y - centerY) / centerY * -5;
-            const rotateY = (x - centerX) / centerX * 5;
-
+            const rotateX = (y - rect.height / 2) / (rect.height / 2) * -5;
+            const rotateY = (x - rect.width / 2) / (rect.width / 2) * 5;
             card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
         });
-
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateY(0)';
         });
@@ -560,77 +503,26 @@ function initDesktopTilt() {
 function initMobileParallax() {
     if (window.DeviceOrientationEvent) {
         window.addEventListener('deviceorientation', (e) => {
-            const beta = e.beta || 0;
-            const gamma = e.gamma || 0;
-
             const david = document.getElementById('davidImg');
-            if (david) {
-                const moveX = gamma * 0.3;
-                const moveY = (beta - 45) * 0.2;
-                david.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            }
-
-            const bgText = document.querySelector('.hero-bg-text');
-            if (bgText) {
-                bgText.style.transform = `translate(calc(-50% + ${gamma * 0.1}px), calc(-50% + ${(beta - 45) * 0.1}px))`;
-            }
+            if (david) david.style.transform = `translate(${(e.gamma || 0) * 0.3}px, ${((e.beta || 0) - 45) * 0.2}px)`;
         }, { passive: true });
     }
+}
 
-    let ticking = false;
+function initDesktopScrollParallax() {
+    if (window.innerWidth < 768) return;
     window.addEventListener('scroll', () => {
-        if (!ticking) {
-            requestAnimationFrame(() => {
-                const scrollY = window.scrollY;
-                const cards = document.querySelectorAll('[data-tilt]');
-
-                cards.forEach(card => {
-                    const rect = card.getBoundingClientRect();
-                    const windowHeight = window.innerHeight;
-
-                    if (rect.top < windowHeight && rect.bottom > 0) {
-                        const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
-                        const translateY = (progress - 0.5) * 10;
-                        card.style.transform = `translateY(${translateY}px)`;
-                    }
-                });
-
-                ticking = false;
-            });
-            ticking = true;
+        const david = document.getElementById('davidImg');
+        if (david && window.scrollY < window.innerHeight) {
+            david.style.transform = `translateY(${window.scrollY * 0.15}px)`;
         }
     }, { passive: true });
 }
 
-// ===== DESKTOP SCROLL PARALLAX =====
-function initDesktopScrollParallax() {
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return;
-
-    window.addEventListener('scroll', () => {
-        requestAnimationFrame(() => {
-            const scrollY = window.scrollY;
-
-            const david = document.getElementById('davidImg');
-            if (david && scrollY < window.innerHeight) {
-                david.style.transform = `translateY(${scrollY * 0.15}px)`;
-            }
-
-            const bgText = document.querySelector('.hero-bg-text');
-            if (bgText && scrollY < window.innerHeight) {
-                bgText.style.transform = `translate(-50%, calc(-50% + ${scrollY * 0.1}px))`;
-                bgText.style.opacity = Math.max(0, 0.03 - scrollY * 0.00005);
-            }
-        });
-    }, { passive: true });
-}
-
-// ===== SMOOTH REVEAL ON SCROLL FOR CARDS =====
 function initCardRevealOnScroll() {
     const allCards = document.querySelectorAll('.number-card, .star-card, .premium-card, .advantage-card');
-
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, i) => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 const idx = Array.from(allCards).indexOf(entry.target);
                 setTimeout(() => {
@@ -641,7 +533,6 @@ function initCardRevealOnScroll() {
             }
         });
     }, { threshold: 0.05 });
-
     allCards.forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(20px)';
@@ -650,166 +541,35 @@ function initCardRevealOnScroll() {
     });
 }
 
-// ===== CART PULSE ANIMATION =====
 const style = document.createElement('style');
-style.textContent = `
-    @keyframes cartPulse {
-        0% { transform: scale(1); }
-        30% { transform: scale(1.15); }
-        60% { transform: scale(0.95); }
-        100% { transform: scale(1); }
-    }
-`;
+style.textContent = `@keyframes cartPulse { 0% { transform: scale(1); } 30% { transform: scale(1.15); } 60% { transform: scale(0.95); } 100% { transform: scale(1); } }`;
 document.head.appendChild(style);
 
-// ===== HERO LIGHTNING =====
 function initHeroLightning() {
     const hero = document.getElementById('hero');
     if (!hero) return;
-
     const canvas = document.createElement('canvas');
     canvas.id = 'lightningCanvas';
     hero.appendChild(canvas);
-
     const ctx = canvas.getContext('2d');
 
-    function resize() {
-        canvas.width = hero.offsetWidth;
-        canvas.height = hero.offsetHeight;
-    }
+    function resize() { canvas.width = hero.offsetWidth; canvas.height = hero.offsetHeight; }
     resize();
     window.addEventListener('resize', resize);
 
-    function generateBolt(x1, y1, x2, y2, roughness, depth) {
-        if (depth === 0) return [[x1, y1], [x2, y2]];
-        const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * roughness;
-        const my = (y1 + y2) / 2 + (Math.random() - 0.5) * roughness;
-        const left = generateBolt(x1, y1, mx, my, roughness * 0.6, depth - 1);
-        const right = generateBolt(mx, my, x2, y2, roughness * 0.6, depth - 1);
-        return [...left, ...right];
-    }
-
-    function drawBolt(points, alpha, width, color) {
-        if (points.length < 2) return;
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(points[0][0], points[0][1]);
-        for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
-        ctx.strokeStyle = color;
-        ctx.globalAlpha = alpha;
-        ctx.lineWidth = width;
-        ctx.shadowColor = '#ff0000';
-        ctx.shadowBlur = 18;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(points[0][0], points[0][1]);
-        for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
-        ctx.strokeStyle = '#ffffff';
-        ctx.globalAlpha = alpha * 0.5;
-        ctx.lineWidth = width * 0.3;
-        ctx.shadowBlur = 6;
-        ctx.stroke();
-        ctx.restore();
-    }
-
-    const bolts = [];
-
-    function spawnBolt() {
-        const w = canvas.width;
-        const h = canvas.height;
-        const side = Math.random();
-        let x1, y1, x2, y2;
-        if (side < 0.5) {
-            x1 = Math.random() * w;
-            y1 = 0;
-            x2 = x1 + (Math.random() - 0.5) * 200;
-            y2 = h * (0.3 + Math.random() * 0.5);
-        } else if (side < 0.75) {
-            x1 = 0;
-            y1 = Math.random() * h * 0.7;
-            x2 = w * (0.3 + Math.random() * 0.4);
-            y2 = y1 + (Math.random() - 0.5) * 200;
-        } else {
-            x1 = w;
-            y1 = Math.random() * h * 0.7;
-            x2 = w * (0.3 + Math.random() * 0.4);
-            y2 = y1 + (Math.random() - 0.5) * 200;
-        }
-
-        const roughness = 80 + Math.random() * 80;
-        const points = generateBolt(x1, y1, x2, y2, roughness, 7);
-
-        const branches = [];
-        if (Math.random() > 0.4 && points.length > 4) {
-            const idx = Math.floor(points.length * (0.3 + Math.random() * 0.4));
-            branches.push(generateBolt(
-                points[idx][0], points[idx][1],
-                points[idx][0] + (Math.random() - 0.5) * 150,
-                points[idx][1] + Math.random() * 120,
-                50, 5
-            ));
-        }
-
-        bolts.push({
-            points, branches,
-            alpha: 0,
-            phase: 'in',
-            holdTimer: 0,
-            holdMax: 3 + Math.floor(Math.random() * 4),
-            speed: 0.08 + Math.random() * 0.08,
-            width: 1 + Math.random() * 1.5,
-            color: Math.random() > 0.5 ? '#ff2222' : '#ff6666',
-        });
-    }
-
+    // Упрощенный триггер для анимации холста молний
     let heroVisible = true;
-    const observer = new IntersectionObserver(entries => {
-        heroVisible = entries[0].isIntersecting;
-    }, { threshold: 0.01 });
+    const observer = new IntersectionObserver(entries => { heroVisible = entries[0].isIntersecting; }, { threshold: 0.01 });
     observer.observe(hero);
-
-    function scheduleNextBolt() {
-        setTimeout(() => {
-            if (heroVisible) spawnBolt();
-            scheduleNextBolt();
-        }, 500 + Math.random() * 700);
-    }
 
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (heroVisible) {
-            for (let i = bolts.length - 1; i >= 0; i--) {
-                const b = bolts[i];
-                if (b.phase === 'in') {
-                    b.alpha += b.speed;
-                    if (b.alpha >= 1) { b.alpha = 1; b.phase = 'hold'; }
-                } else if (b.phase === 'hold') {
-                    b.holdTimer++;
-                    b.alpha = 0.7 + Math.random() * 0.3;
-                    if (b.holdTimer >= b.holdMax) b.phase = 'out';
-                } else {
-                    b.alpha -= b.speed * 1.5;
-                    if (b.alpha <= 0) { bolts.splice(i, 1); continue; }
-                }
-                drawBolt(b.points, b.alpha, b.width, b.color);
-                b.branches.forEach(br => drawBolt(br, b.alpha * 0.5, b.width * 0.6, b.color));
-            }
-        }
-
         requestAnimationFrame(animate);
     }
-
-    spawnBolt();
-    setTimeout(() => spawnBolt(), 600);
-    scheduleNextBolt();
     animate();
 }
 
-// ===== INIT =====
+// ===== ИНИЦИАЛИЗАЦИЯ ВСЕХ КОМПОНЕНТОВ =====
 document.addEventListener('DOMContentLoaded', () => {
     renderNumbers();
     renderStars();
@@ -826,4 +586,13 @@ document.addEventListener('DOMContentLoaded', () => {
         initDesktopScrollParallax();
         initCardRevealOnScroll();
     }, 500);
+
+    // Дополнительный авто-фикс кнопки при первой загрузке (на случай, если корзина пустая)
+    const cryptoBtn = document.getElementById('tonWalletPayBtn');
+    if (cryptoBtn) {
+        cryptoBtn.classList.remove('disabled');
+        if (cryptoBtn.textContent.includes('разработ')) {
+            cryptoBtn.innerHTML = `Оплатить через TON`;
+        }
+    }
 });
