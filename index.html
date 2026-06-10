@@ -16,7 +16,6 @@
 </head>
 
 <body>
-    <!-- Header -->
     <header class="header" id="header">
         <div class="header-inner">
             <a href="#" class="logo">INTERNET_<span>MAG.UZ</span></a>
@@ -42,7 +41,6 @@
         </div>
     </header>
 
-    <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <nav class="mobile-nav">
             <a href="#numbers" class="mobile-nav-link" onclick="closeMobileMenu()">НОМЕРА</a>
@@ -51,7 +49,6 @@
         </nav>
     </div>
 
-    <!-- Hero Section -->
     <section class="hero" id="hero">
         <div class="hero-bg-text">INTERNET_MAG.UZ</div>
         <div class="hero-overlay"></div>
@@ -88,7 +85,6 @@
                         КУПИТЬ PREMIUM
                     </a>
                 </div>
-                <!-- Telegram Contact Buttons -->
                 <div class="telegram-contacts scroll-animate" data-animation="fadeInUp" data-delay="700">
                     <a href="https://t.me/Internet_maguz_ADMIN" target="_blank" class="telegram-btn admin-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -143,7 +139,6 @@
         </div>
     </section>
 
-    <!-- Virtual Numbers Section -->
     <section class="section" id="numbers">
         <div class="container">
             <div class="section-header scroll-animate" data-animation="fadeInUp">
@@ -162,12 +157,10 @@
                     →</a>
             </div>
             <div class="numbers-grid scroll-animate" data-animation="fadeInUp" data-delay="200" id="numbersGrid">
-                <!-- Cards will be inserted by JS -->
-            </div>
+                </div>
         </div>
     </section>
 
-    <!-- Telegram Stars Section -->
     <section class="section section-stars" id="stars">
         <div class="container">
             <div class="section-header scroll-animate" data-animation="fadeInUp">
@@ -176,12 +169,10 @@
                 </h2>
             </div>
             <div class="stars-grid scroll-animate" data-animation="fadeInUp" data-delay="200" id="starsGrid">
-                <!-- Cards will be inserted by JS -->
-            </div>
+                </div>
         </div>
     </section>
 
-    <!-- Telegram Premium Section -->
     <section class="section section-premium" id="premium">
         <div class="container">
             <div class="section-header scroll-animate" data-animation="fadeInUp">
@@ -190,12 +181,10 @@
                 </h2>
             </div>
             <div class="premium-grid scroll-animate" data-animation="fadeInUp" data-delay="200" id="premiumGrid">
-                <!-- Cards will be inserted by JS -->
-            </div>
+                </div>
         </div>
     </section>
 
-    <!-- Advantages Section -->
     <section class="section section-advantages" id="advantages">
         <div class="container">
             <div class="advantages-grid">
@@ -244,7 +233,6 @@
         </div>
     </section>
 
-    <!-- FAQ Section -->
     <section class="section section-faq" id="faq">
         <div class="container">
             <h2 class="section-title scroll-animate" data-animation="fadeInUp">
@@ -325,7 +313,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -363,7 +350,6 @@
         </div>
     </footer>
 
-    <!-- Cart Sidebar -->
     <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
@@ -428,20 +414,26 @@
                         Копировать
                     </button>
                 </div>
-                <div class="ton-instruction">
-                    ⚠️ При отправке TON укажите в <strong>комментарии к транзакции</strong> ваш username Telegram и
-                    товары, которые вы покупаете.
-                </div>
-                <a href="#" id="tonWalletPayBtn" target="_blank" class="cart-ton-pay-btn">
-                    💎 Оплатить через TON Wallet (в разработке)
+
+                <a href="#" id="tonWalletPayBtn" target="_blank" class="cart-ton-pay-btn" style="margin-bottom: 8px;">
+                    💎 Оплатить через Tonkeeper
                 </a>
+
+                <a href="#" id="tgWalletPayBtn" target="_blank" class="cart-ton-pay-btn" style="background: linear-gradient(135deg, #007cb0 0%, #0093d0 100%); border-color: #0093d0;">
+                    🤖 Оплатить через Telegram Кошелёк
+                </a>
+
+                <div style="font-size: 11px; margin-top: 12px; line-height: 1.4; text-align: left; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                    <span style="color: #ff5252; font-weight: bold; display: block; margin-bottom: 4px; text-transform: uppercase; font-family: 'Oswald', sans-serif; letter-spacing: 0.5px;">💡 Какую кнопку выбрать для оплаты?</span>
+                    <p style="color: #bbb; margin: 0 0 6px 0;">• <b>Если вы ранее пользовались Tonkeeper:</b> Спокойно платите через него, комиссия сети будет мизерной (около 0.01 TON). <u>Обратите внимание:</u> кошелёк может временно отобразить залог за комиссию ≈1 TON — это стандартный системный резерв, лишнее сразу вернётся на баланс!</p>
+                    <p style="color: #bbb; margin: 0;">• <b>Если вы новичок:</b> Настоятельно рекомендуем нажать кнопку <b>"Через Telegram Кошелёк"</b>. Вас перенаправит во встроенное приложение прямо внутри Telegram, где оплата пройдёт максимально просто, понятно и без лишних всплывающих окон.</p>
+                </div>
             </div>
 
             <button class="cart-clear-btn" onclick="clearCart()">Очистить корзину</button>
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div class="toast-notification" id="toastNotification">
         <div class="toast-content">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="2">
