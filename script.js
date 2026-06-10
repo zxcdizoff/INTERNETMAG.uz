@@ -81,7 +81,7 @@ const recentPurchases = [
 // ===== CART =====
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-// Точный курс (1 TON ≈ 19700 UZS) для вывода правильной стоимости (27399 сум / 19700 = 1.39 TON)
+// Фиксированный точный курс (1 TON ≈ 19700 UZS), чтобы 27399 сум выходило ровно как 1.39 TON
 let TON_TO_UZS = 19700; 
 const TON_ADDRESS = 'UQBPBHpxKZ57TfqidkU7L6Z_aYTBvcgi936J9qdx80g9fxH3';
 
@@ -101,7 +101,6 @@ async function fetchTonRate() {
 
         if (tonUsd && usdUzs) {
             const calculatedRate = Math.round(tonUsd * usdUzs);
-            // Защита, чтобы курс оставался в пределах нормы рынка
             if (calculatedRate > 10000 && calculatedRate < 40000) {
                 TON_TO_UZS = calculatedRate;
                 console.log(`[Реальный TON] Курс обновлен: 1 TON = ${TON_TO_UZS} UZS`);
@@ -123,6 +122,7 @@ function updateCartUI() {
     const cartTotal = document.getElementById('cartTotal');
     const cartTotalTon = document.getElementById('cartTotalTon');
     const tonWalletPayBtn = document.getElementById('tonWalletPayBtn');
+    const tgWalletPayBtn = document.getElementById('tgWalletPayBtn'); // Новая кнопка
 
     cartCount.textContent = cart.length;
 
@@ -158,21 +158,27 @@ function updateCartUI() {
         const markupPerItem = 2000; 
         const totalWithMarkup = total + (cart.length * markupPerItem);
 
-        // Переводим цену в TON с точностью до двух знаков (27399 / 19700 = 1.39 TON)
+        // Переводим цену в TON
         const tonPrice = (totalWithMarkup / TON_TO_UZS).toFixed(2);
         cartTotalTon.textContent = `~${tonPrice} TON`;
 
-        // Ссылка для кошельков с комментарием и @username
+        // Текст комментария для транзакции
         const itemsList = cart.map(item => item.name).join(', ');
         const commentText = `Покупка: ${itemsList}. Telegram: @username`;
         const nanotons = Math.round(parseFloat(tonPrice) * 1000000000);
 
-        tonWalletPayBtn.href = `ton://transfer/${TON_ADDRESS}?amount=${nanotons}&text=${encodeURIComponent(commentText)}`;
-
-        // Делаем кнопку активной и убираем "В разработке"
+        // 1. Настройка ссылки для внешней программы Tonkeeper (ton://)
         if (tonWalletPayBtn) {
+            tonWalletPayBtn.href = `ton://transfer/${TON_ADDRESS}?amount=${nanotons}&text=${encodeURIComponent(commentText)}`;
             tonWalletPayBtn.classList.remove('disabled');
-            tonWalletPayBtn.innerHTML = `Оплатить через TON (~${tonPrice} TON)`;
+            tonWalletPayBtn.innerHTML = `Оплатить через Tonkeeper (~${tonPrice} TON)`;
+        }
+
+        // 2. Настройка ссылки для встроенного Telegram Кошелька (t.me/wallet)
+        if (tgWalletPayBtn) {
+            tgWalletPayBtn.href = `https://t.me/wallet/start?startapp=w_transfer-address_${TON_ADDRESS}-amount_${tonPrice}-asset_TON-memo_${encodeURIComponent(commentText)}`;
+            tgWalletPayBtn.classList.remove('disabled');
+            tgWalletPayBtn.innerHTML = `Оплатить через Telegram Кошелёк (~${tonPrice} TON)`;
         }
     }
 
@@ -586,12 +592,4 @@ document.addEventListener('DOMContentLoaded', () => {
         initDesktopScrollParallax();
         initCardRevealOnScroll();
     }, 500);
-
-    const cryptoBtn = document.getElementById('tonWalletPayBtn');
-    if (cryptoBtn) {
-        cryptoBtn.classList.remove('disabled');
-        if (cryptoBtn.textContent.includes('разработ')) {
-            cryptoBtn.innerHTML = `Оплатить через TON`;
-        }
-    }
 });
